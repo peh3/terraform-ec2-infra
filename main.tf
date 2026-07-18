@@ -5,6 +5,15 @@ resource "aws_instance" "public" {
   associate_public_ip_address = true
   key_name                    = "tk-key-pair" #Change to your keyname, e.g. jazeel-key-pair
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+
+  user_data = <<EOF
+    #!/bin/bash
+    yum update -y
+    yum install httpd -y
+    echo "<h1>Hello from TK</h1>" | sudo tee /var/www/html/index.html
+    systemctl start httpd
+    systemctl enable httpd
+    EOF
  
   tags = {
     Name = "tk-ec2"    #Prefix your own name, e.g. jazeel-ec2
@@ -23,4 +32,12 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
+}
+
+terraform {
+  backend "s3" {
+    bucket = "sctp-tfstate-ce13"
+    key    = "tk-tf.tfstate"
+    region = "us-east-1"
+  }
 }
