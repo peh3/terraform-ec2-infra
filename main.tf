@@ -6,15 +6,17 @@ resource "aws_instance" "public" {
   key_name                    = "tk-ec2-key" #Change to your keyname, e.g. jazeel-key-pair
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
-  user_data = <<EOF
-    #!/bin/bash
-    yum update -y
-    yum install httpd -y
-    echo "<h1>Hello from TK</h1>" | sudo tee /var/www/html/index.html
-    systemctl start httpd
-    systemctl enable httpd
-    EOF
- 
+  #user_data = <<EOF
+  #  #!/bin/bash
+  #  yum update -y
+  #  yum install httpd -y
+  #  echo "<h1>Hello from TK</h1>" | sudo tee /var/www/html/index.html
+  #  systemctl start httpd
+  #  systemctl enable httpd
+  #  EOF
+
+  user_data = file("${path.module}/userdata.sh")
+
   tags = {
     Name = "tk-ec2"    #Prefix your own name, e.g. jazeel-ec2
   }
@@ -35,3 +37,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
 }
 
 
+output "public_ip" {
+  description = "The public IP address of the main web server."
+  value       = aws_instance.public.public_ip
+}
