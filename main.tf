@@ -3,7 +3,7 @@ resource "aws_instance" "public" {
   instance_type               = "t2.micro"
   subnet_id                   = "subnet-07fe08d5909e677db"  #Public Subnet ID, e.g. subnet-xxxxxxxxxxx
   associate_public_ip_address = true
-  key_name                    = "tk-key-pair" #Change to your keyname, e.g. jazeel-key-pair
+  key_name                    = "tk-ec2-key" #Change to your keyname, e.g. jazeel-key-pair
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
   user_data = <<EOF
@@ -34,10 +34,4 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   to_port           = 22
 }
 
-terraform {
-  backend "s3" {
-    bucket = "sctp-tfstate-ce13"
-    key    = "tk-tf.tfstate"
-    region = "us-east-1"
-  }
-}
+
